@@ -1,4 +1,4 @@
-export class PromiseListenCatch<T = any> implements PromiseLike<T> {
+export default class PromiseListenCatch<T = any> implements PromiseLike<T> {
   private readonly promise: Promise<T>;
   private readonly previous: PromiseListenCatch<any>[];
   private catchHandled: boolean = false;
