@@ -3,7 +3,7 @@
     "target": "ES5",
     "module": "commonjs",
     "allowJs": false,
-    "lib": ["ES2015"],
+    "lib": ["ESNext"],
     "declaration": true,
     "removeComments": false,
     "outDir": "./lib",

@@ -25,8 +25,18 @@ export default class PromiseListenCatch<T = any> implements PromiseLike<T> {
     return new PromiseListenCatch<T | TResult>(newPromise, this.previous.concat(this));
   }
 
+  finally(onfinally?: (() => void) | undefined | null): PromiseListenCatch<T> {
+    const newPromise = this.promise.finally(onfinally);
+
+    return new PromiseListenCatch(newPromise, this.previous.concat(this));
+  }
+
   isCatched(): boolean {
     return this.catchHandled;
+  }
+
+  protected toString() {
+    return '[object PromiseListenCatch]';
   }
 
   protected setCatchHandled(is: boolean) {

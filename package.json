@@ -1,6 +1,6 @@
 {
   "name": "promise-listen-catch",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "lib/index.js",
   "repository": "git@github.com:fwh1990/promise-catch.git",
   "author": "范文华 <531362022@qq.com>",
