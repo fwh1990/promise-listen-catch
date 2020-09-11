@@ -10,12 +10,9 @@ yarn add promise-listen-catch
 ```typescript
 const promise = new PromiseListenCatch((resolve, reject) => {
   setTimeout(() => {
-    if (promise.hasThen() && !promise.hasCatch()) {
+    if (promise.hasThen() || promise.hasCatch()) {
       // Append receiver to the end of chain
-      promise.appendCatchToEnd();
-    }
-
-    if (promise.hasCatch()) {
+      promise.hasCatch() || promise.appendCatchToEnd();
       // Reject as normal
       reject('with catch');
     } else {
