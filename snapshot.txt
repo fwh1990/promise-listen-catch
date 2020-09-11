@@ -4,4 +4,5 @@ race1
 without catch Promise { <rejected> 'without catch' }
 without catch Promise { <rejected> 'without catch' }
 with catch
+empty catch Promise { <rejected> 'empty catch' }
 [ 1, 2, 3 ]

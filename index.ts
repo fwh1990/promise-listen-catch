@@ -21,7 +21,7 @@ export default class PromiseListenCatch<T = any> implements PromiseLike<T> {
 
   catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): PromiseListenCatch<T | TResult> {
     const newPromise = this.promise.catch(onrejected);
-    this.setCatchHandled(true);
+    this.setCatchHandled(!!onrejected);
 
     return this.createNext(newPromise);
   }

@@ -95,6 +95,16 @@ process.addListener('unhandledRejection', console.log);
   promise.catch(console.log);
 })();
 
+(() => {
+  const promise = new PromiseListenCatch((_, reject) => {
+    setTimeout(() => {
+      reject('empty catch');
+    });
+  });
+
+  promise.catch();
+})();
+
 Promise.all([
   new PromiseListenCatch((resolve) => {
     resolve(1);
