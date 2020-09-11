@@ -1,0 +1,7 @@
+resolve1
+normal rejection
+race1
+without catch Promise { <rejected> 'without catch' }
+without catch Promise { <rejected> 'without catch' }
+with catch
+[ 1, 2, 3 ]
