@@ -62,7 +62,7 @@ process.addListener('unhandledRejection', console.log);
 (() => {
   const promise = new PromiseListenCatch((resolve, reject) => {
     setTimeout(() => {
-      if (promise.hasThen()) {
+      if (promise.hasThen() || promise.hasCatch()) {
         promise.hasCatch() || promise.appendCatchToEnd();
         reject('with catch');
       } else {
@@ -80,11 +80,8 @@ process.addListener('unhandledRejection', console.log);
 (() => {
   const promise = new PromiseListenCatch((resolve, reject) => {
     setTimeout(() => {
-      if (promise.hasThen() && !promise.hasCatch()) {
-        promise.appendCatchToEnd();
-      }
-
-      if (promise.hasCatch()) {
+      if (promise.hasThen() || promise.hasCatch()) {
+        promise.hasCatch() || promise.appendCatchToEnd();
         reject('with catch');
       } else {
         resolve();
@@ -107,11 +104,73 @@ process.addListener('unhandledRejection', console.log);
 
 Promise.all([
   new PromiseListenCatch((resolve) => {
-    resolve(1);
+    resolve('promise.all ok1');
   }),
   new PromiseListenCatch((resolve) => {
     setTimeout(() => {
-      resolve(2);
+      resolve('promise.all ok2');
+    }, 200);
+  }),
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('promise.all ok3');
+    }, 100);
+  }),
+]).then(console.log);
+
+Promise.race([
+  new PromiseListenCatch((resolve) => {
+    resolve('promise.all race1');
+  }),
+  new PromiseListenCatch((resolve) => {
+    setTimeout(() => {
+      resolve('promise.all race2');
+    }, 200);
+  }),
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('promise.all race3');
+    }, 100);
+  }),
+]).then(console.log);
+
+(() => {
+  const promise = new PromiseListenCatch((resolve, reject) => {
+    setTimeout(() => {
+      if (promise.hasThen() || promise.hasCatch()) {
+        if (promise.hasThen()) {
+          console.log('promise.all has then handler');
+        }
+
+        if (promise.hasCatch()) {
+          console.log('promise.all has catch handler');
+        } else {
+          promise.appendCatchToEnd();
+        }
+
+        reject('promise.all rejection');
+      } else {
+        console.log('-----never run here');
+        resolve();
+      }
+    }, 200);
+  });
+
+  Promise.all([
+    new PromiseListenCatch((resolve) => {
+      resolve(1);
+    }),
+    promise,
+  ]);
+})();
+
+Promise.all([
+  new PromiseListenCatch((resolve) => {
+    resolve(1);
+  }),
+  new PromiseListenCatch((_, reject) => {
+    setTimeout(() => {
+      reject('promise.all normal rejection');
     }, 200);
   }),
   new Promise((resolve) => {
@@ -119,20 +178,4 @@ Promise.all([
       resolve(3);
     }, 100);
   }),
-]).then(console.log);
-
-Promise.race([
-  new PromiseListenCatch((resolve) => {
-    resolve('race1');
-  }),
-  new PromiseListenCatch((resolve) => {
-    setTimeout(() => {
-      resolve('race2');
-    }, 200);
-  }),
-  new Promise((resolve) => {
-    setTimeout(() => {
-      resolve('race3');
-    }, 100);
-  }),
-]).then(console.log);
+]).catch(console.log);

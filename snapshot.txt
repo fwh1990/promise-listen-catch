@@ -1,8 +1,12 @@
 resolve1
 normal rejection
-race1
+promise.all race1
 without catch Promise { <rejected> 'without catch' }
 without catch Promise { <rejected> 'without catch' }
 with catch
 empty catch Promise { <rejected> 'empty catch' }
-[ 1, 2, 3 ]
+[ 'promise.all ok1', 'promise.all ok2', 'promise.all ok3' ]
+promise.all has then handler
+promise.all has catch handler
+promise.all rejection Promise { <rejected> 'promise.all rejection' }
+promise.all normal rejection
