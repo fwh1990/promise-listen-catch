@@ -2,8 +2,8 @@ export default class PromiseListenCatch<T = any> implements PromiseLike<T> {
   private readonly promise: Promise<T>;
   protected prev: PromiseListenCatch<any> | null = null;
   protected next: PromiseListenCatch<any>[] = [];
-  private catchHandled: boolean = false;
-  private thenHandled: boolean = false;
+  private _catch: boolean = false;
+  private _then: boolean = false;
 
   constructor(executor: ConstructorParameters<typeof Promise>[0]);
   constructor(promise: Promise<T>);
@@ -12,38 +12,49 @@ export default class PromiseListenCatch<T = any> implements PromiseLike<T> {
   }
 
   then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): PromiseListenCatch<TResult1 | TResult2> {
-    const newPromise = this.promise.then<TResult1, TResult2>(onfulfilled, onrejected);
-    this.setThenHandled(!!onfulfilled);
-    this.setCatchHandled(!!onrejected);
+    const promise = this.promise.then<TResult1, TResult2>(onfulfilled, onrejected);
+    this.setThen(!!onfulfilled);
+    this.setCatch(!!onrejected);
 
-    return this.createNext(newPromise);
+    return this.make(promise);
   }
 
   catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): PromiseListenCatch<T | TResult> {
-    const newPromise = this.promise.catch(onrejected);
-    this.setCatchHandled(!!onrejected);
+    const promise = this.promise.catch(onrejected);
+    this.setCatch(!!onrejected);
 
-    return this.createNext(newPromise);
+    return this.make(promise);
   }
 
   finally(onfinally?: (() => void) | undefined | null): PromiseListenCatch<T> {
-    const newPromise = this.promise.finally(onfinally);
+    const promise = this.promise.finally(onfinally);
 
-    return this.createNext(newPromise);
-  }
-
-  hasThen(): boolean {
-    return this.thenHandled;
-  }
-
-  hasCatch(): boolean {
-    return this.catchHandled;
+    return this.make(promise);
   }
 
   /**
-   * @param {string | undefined} logLevel Default: non-log
+   * Determine reject or resolve.
+   * If `true`, you can reject safely.
+   * If `false`, user doesn't care the result, you can resolve safely.
+   * @returns {boolean}
    */
-  appendCatchToEnd(logLevel?: 'log' | 'info' | 'warn' | 'error'): void {
+  canReject(): boolean {
+    // It means user have added catch handler, we can safely reject.
+    if (this._catch) {
+      return true;
+    }
+
+    // No catch handler and no then handler.
+    // It means user doesn't care the result, we can safely resolve.
+    if (!this._then) {
+      return false;
+    }
+
+    this.append();
+    return true;
+  }
+
+  protected append(): void {
     let last: PromiseListenCatch = this;
 
     while (true) {
@@ -55,20 +66,20 @@ export default class PromiseListenCatch<T = any> implements PromiseLike<T> {
         last = last.next[0];
       } else {
         last.next.forEach((item) => {
-          this.appendCatchToEnd.call(item, logLevel);
+          this.append.call(item);
         });
         return;
       }
     }
 
-    last.catch((logLevel ? console[logLevel] : Function.prototype) as any);
+    last.catch((Function.prototype) as any);
   }
 
   protected toString() {
     return '[object PromiseListenCatch]';
   }
 
-  protected createNext<T1>(promise: Promise<T1>) {
+  protected make<T1>(promise: Promise<T1>) {
     const instance = new PromiseListenCatch<T1>(promise);
     this.next.push(instance);
     instance.prev = this;
@@ -76,26 +87,26 @@ export default class PromiseListenCatch<T = any> implements PromiseLike<T> {
     return instance;
   }
 
-  protected setThenHandled(is: boolean) {
-    this.thenHandled = is;
+  protected setThen(is: boolean) {
+    this._then = is;
 
     if (is) {
       let prev: PromiseListenCatch | null = this;
 
       while((prev = prev.prev) !== null) {
-        prev.thenHandled = true;
+        prev._then = true;
       }
     }
   }
 
-  protected setCatchHandled(is: boolean) {
-    this.catchHandled = is;
+  protected setCatch(is: boolean) {
+    this._catch = is;
 
     if (is) {
       let prev: PromiseListenCatch | null = this;
 
       while((prev = prev.prev) !== null) {
-        prev.catchHandled = true;
+        prev._catch = true;
       }
     }
   }

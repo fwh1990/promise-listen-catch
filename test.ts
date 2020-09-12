@@ -42,8 +42,9 @@ process.addListener('unhandledRejection', console.log);
 (() => {
   const promise = new PromiseListenCatch((_, reject) => {
     setTimeout(() => {
-      promise.appendCatchToEnd();
-      reject('with catch');
+      if (promise.canReject()) {
+        reject('safe 1');
+      }
     });
   });
 
@@ -62,9 +63,8 @@ process.addListener('unhandledRejection', console.log);
 (() => {
   const promise = new PromiseListenCatch((resolve, reject) => {
     setTimeout(() => {
-      if (promise.hasThen() || promise.hasCatch()) {
-        promise.hasCatch() || promise.appendCatchToEnd();
-        reject('with catch');
+      if (promise.canReject()) {
+        reject('safe 2');
       } else {
         resolve();
       }
@@ -80,9 +80,8 @@ process.addListener('unhandledRejection', console.log);
 (() => {
   const promise = new PromiseListenCatch((resolve, reject) => {
     setTimeout(() => {
-      if (promise.hasThen() || promise.hasCatch()) {
-        promise.hasCatch() || promise.appendCatchToEnd();
-        reject('with catch');
+      if (promise.canReject()) {
+        reject('with catch 3');
       } else {
         resolve();
       }
@@ -137,17 +136,7 @@ Promise.race([
 (() => {
   const promise = new PromiseListenCatch((resolve, reject) => {
     setTimeout(() => {
-      if (promise.hasThen() || promise.hasCatch()) {
-        if (promise.hasThen()) {
-          console.log('promise.all has then handler');
-        }
-
-        if (promise.hasCatch()) {
-          console.log('promise.all has catch handler');
-        } else {
-          promise.appendCatchToEnd();
-        }
-
+      if (promise.canReject()) {
         reject('promise.all rejection');
       } else {
         console.log('-----never run here');

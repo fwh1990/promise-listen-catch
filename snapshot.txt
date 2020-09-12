@@ -3,10 +3,8 @@ normal rejection
 promise.all race1
 without catch Promise { <rejected> 'without catch' }
 without catch Promise { <rejected> 'without catch' }
-with catch
+with catch 3
 empty catch Promise { <rejected> 'empty catch' }
 [ 'promise.all ok1', 'promise.all ok2', 'promise.all ok3' ]
-promise.all has then handler
-promise.all has catch handler
 promise.all rejection Promise { <rejected> 'promise.all rejection' }
 promise.all normal rejection
