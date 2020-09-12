@@ -8,11 +8,15 @@ yarn add promise-listen-catch
 
 # Usage
 ```typescript
+import PromiseListenCatch from 'promise-listen-catch';
+
 const promise = new PromiseListenCatch((resolve, reject) => {
   setTimeout(() => {
     if (promise.canReject()) {
-      reject('with catch');
+      reject('throw safely');
     } else {
+      // User doesn't care about result.
+      // You are recommended to resolve instead of reject.
       resolve();
     }
   });
